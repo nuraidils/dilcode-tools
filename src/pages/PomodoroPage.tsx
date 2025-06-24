@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import Notification from "../components/Notification";
 
 // tipe ini untuk mode timer
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
@@ -14,8 +15,16 @@ export default function PomodoroPage() {
     const [timeLeft, setTimeLeft] = useState(POMODORO_SECONDS);
     const [isActive, setIsActive] = useState(false);
     const [sessionCount, setSessionCount] = useState(0);
+    const [notification, setNotification] = useState({ show: false, message: '' });
 
     // logika inti
+
+    const showNotification = (message: string) => {
+        setNotification({ show: true, message });
+        setTimeout(() => {
+            setNotification({ show: false, message: '' });
+        }, 3000); // notifikasi akan hilang setelah 3 detik
+    };
 
     // dibuat dengan usecallback agar tidak dibuat ulang setiap render, kecuali dependensinya berubah
     const switchMode = useCallback((newMode: Mode) => {
@@ -51,24 +60,29 @@ export default function PomodoroPage() {
 
     // useeffect kedua untuk menangani saat waktu habis
     useEffect(() => {
-        const newTitle = `${formatTime(timeLeft)} - Pomodoro`
         if (timeLeft === 0) {
-            // menggunakan document.title untuk notifikasi visual di tab browser
-            document.title = "Waktu Habis!";
+            let nextMode: Mode = 'pomodoro';
+            let notificationMessage = '';
+
             // kondisi untuk sesi
             if (mode === 'pomodoro') {
                 const newSessionCount = sessionCount + 1;
                 setSessionCount(newSessionCount);
                 if (newSessionCount % SESSIONS_FOR_LONG_BREAK === 0) {
-                    switchMode('longBreak');
+                    nextMode = 'longBreak';
+                    notificationMessage = "Waktunya istirahat panjang!";
                 } else {
-                    switchMode('shortBreak');
+                    nextMode = 'shortBreak';
+                    notificationMessage = "Waktunya istirahat singkat!";
                 }
             } else { // jika selesai istirahat
-                switchMode('pomodoro')
+                nextMode = 'pomodoro';
+                notificationMessage = "Kembali fokus!";
             }
-        } else {
-            document.title = newTitle;
+
+            showNotification(notificationMessage);
+            switchMode(nextMode);
+            setIsActive(true);
         }
     }, [timeLeft, mode, switchMode, sessionCount]);
 
@@ -96,6 +110,7 @@ export default function PomodoroPage() {
 
     return (
         <div className="flex flex-col items-center justify-center text-center">
+            <Notification message={notification.message} show={notification.show} />
             {/* Tombol pindah mode */}
             <div className="flex space-x-2 md:space-x-4 mb-8 p-2 bg-card rounded-lg">
                 <button onClick={() => switchMode('pomodoro')} className={`px-3 md:px-4 py-2 rounded-md transition-colors duration-300 ${mode === 'pomodoro' ? 'bg-accent' : 'hover:bg-background'}`}>Pomodoro</button>

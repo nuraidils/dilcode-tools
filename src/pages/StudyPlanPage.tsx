@@ -74,23 +74,23 @@ export default function StudyPlanPage() {
             <form onSubmit={handleGeneratePlan} className="w-full max-w-2xl bg-card p-6 md:p-8 rounded-lg shadow-lg">
                 {/* Input Mata Pelajaran */}
                 <div className="mb-6">
-                    <label htmlFor="subjects" className="block text-base md:text-lg font-medium mb-2">Mata Pelajaran (pisahkan dengan koma)</label>
+                    <label htmlFor="subjects" className="block text-base text-white md:text-lg font-medium mb-2">Mata Pelajaran (pisahkan dengan koma)</label>
                     <input
                         type="text"
                         id="subjects"
                         value={subjectsInput}
                         onChange={(e) => setSubjectsInput(e.target.value)}
                         placeholder="Contoh: Matematika, Fisika, Biologi"
-                        className="w-full p-3 bg-background rounded-md border-2 border-transparent focus:border-accent focus:ring-0 focus:outline-none transition-colors duration-300"
+                        className="w-full p-3 bg-background rounded-md text-white border-2 border-transparent focus:border-accent focus:ring-0 focus:outline-none transition-colors duration-300"
                     />
                 </div>
                 
                 {/* Pilihan Hari */}
                 <div className="mb-6">
-                    <label className="block text-base md:text-lg font-medium mb-2">Hari Belajar</label>
+                    <label className="block text-base text-white md:text-lg font-medium mb-2">Hari Belajar</label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
                         {DAYS_OF_WEEK.map(day => (
-                            <label key={day} className={`flex items-center space-x-2 p-3 rounded-md cursor-pointer transition-colors duration-300 text-sm md:text-base ${selectedDays.includes(day) ? 'bg-accent' : 'bg-background hover:bg-opacity-70'}`}>
+                            <label key={day} className={`flex items-center space-x-2 p-3 rounded-md cursor-pointer transition-colors duration-300 text-white text-sm md:text-base ${selectedDays.includes(day) ? 'bg-accent' : 'bg-background hover:bg-opacity-70'}`}>
                                 <input
                                     type="checkbox"
                                     checked={selectedDays.includes(day)}
@@ -105,7 +105,7 @@ export default function StudyPlanPage() {
 
                 {/* Input Jam Belajar */}
                 <div className="mb-8">
-                    <label htmlFor="hours" className="block text-base md:text-lg font-medium mb-2">Jam Belajar per Hari</label>
+                    <label htmlFor="hours" className="block text-base md:text-lg text-white font-medium mb-2">Jam Belajar per Hari</label>
                     <input
                         type="number"
                         id="hours"
@@ -128,7 +128,7 @@ export default function StudyPlanPage() {
             <div className="w-full max-w-4xl mt-12">
                 {!schedule && !error && (
                     <div className="text-center p-8 bg-card rounded-lg animate-fade-in">
-                        <h2 className="text-2xl font-bold mb-2">Mulai Rencanakan Belajarmu</h2>
+                        <h2 className="text-2xl text-white font-bold mb-2">Mulai Rencanakan Belajarmu</h2>
                         <p className="opacity-70">Isi form di atas dan klik "Buat Jadwal" untuk melihat rencana belajarmu muncul di sini!</p>
                     </div>
                 )}
@@ -139,7 +139,7 @@ export default function StudyPlanPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {Object.entries(schedule).map(([day, subjectsForDay]) => (
                                 <div key={day} className="bg-card rounded-lg shadow-lg p-6">
-                                    <h3 className="text-2xl font-semibold mb-4 border-b-2 border-accent pb-2">{day}</h3>
+                                    <h3 className="text-2xl text-white font-semibold mb-4 border-b-2 border-accent pb-2">{day}</h3>
                                     <ul className="space-y-3">
                                         {subjectsForDay.map((subject, index) => (
                                             <li key={index} className="bg-background p-3 rounded-md flex items-center">

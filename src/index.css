@@ -1,1 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap");
 @import "tailwindcss";
+
+@theme {
+    --font-montserrat: Montserrat, sans-serif;
+    --color-background: #1a002f;
+    --color-card: #2a004f;
+    --color-accent: #b366ff;
+    --color-accent-hover: #9933ff;
+    --color-text: #e0e0e0;
+    --color-text-highlight: #ffcce6;
+    --color-success: #00cc66;
+    --color-error: #f44336;
+    --animate-fadeIn: fadeIn 0.5s ease-out forwards;
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(10px);
+            -webkit-transform: translateY(10px);
+            -moz-transform: translateY(10px);
+            -ms-transform: translateY(10px);
+            -o-transform: translateY(10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+            -webkit-transform: translateY(0);
+            -moz-transform: translateY(0);
+            -ms-transform: translateY(0);
+            -o-transform: translateY(0);
+}
+    }
+}

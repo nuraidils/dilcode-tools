@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { FormEvent } from "react";
-import Notification from "../components/Notification";
+import { useNotificationStore } from "../hooks/useNotificationStore";
+import { formatTime } from "../utils/formatters";
 
 // tipe ini untuk mode timer
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
@@ -27,16 +28,13 @@ export default function PomodoroPage() {
     // state untuk input form pengaturan
     const [settingsInput, setSettingsInput] = useState({ ...times, sessions: sessionsForLongBreak });
 
-    const [notification, setNotification] = useState({ show: false, message: '' });
+    // Panggil fungsi notifikasi dari store global
+    const showNotification = useNotificationStore(state => state.showNotification);
+
+    // --- REF BARU UNTUK ELEMEN AUDIO ---
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     // logika dan fungsi bantuan
-
-    const showNotification = (message: string) => {
-        setNotification({ show: true, message });
-        setTimeout(() => {
-            setNotification({ show: false, message: '' });
-        }, 3000); // notifikasi akan hilang setelah 3 detik
-    };
 
     // dibuat dengan usecallback agar tidak dibuat ulang setiap render, kecuali dependensinya berubah
     const switchMode = useCallback((newMode: Mode) => {
@@ -73,6 +71,7 @@ export default function PomodoroPage() {
         if (timeLeft === 0 && isActive) {
             let nextMode: Mode = 'pomodoro';
             let notificationMessage = '';
+            audioRef.current?.play();
             // kondisi untuk sesi
             if (mode === 'pomodoro') {
                 const newSessionCount = sessionCount + 1;
@@ -88,7 +87,7 @@ export default function PomodoroPage() {
                 nextMode = 'pomodoro';
                 notificationMessage = "Kembali fokus!";
             }
-            showNotification(notificationMessage);
+            showNotification(notificationMessage, 'info');
             switchMode(nextMode);
             setIsActive(true);
         }
@@ -109,22 +108,15 @@ export default function PomodoroPage() {
         setIsActive(false);
         // langsung update timer ke durasi pomodoro baru
         setTimeLeft(settingsInput.pomodoro * 60);
-        showNotification("Pengaturan berhasil disimpan!");
-    };
-
-    // format waktu dari detik menjadi MM:SS
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        showNotification("Pengaturan berhasil disimpan!", 'success');
     };
 
     // tampilan
 
     return (
         <div className="flex flex-col items-center justify-center text-center w-full">
-            <Notification message={notification.message} show={notification.show} />
-
+            {/* --- TAMBAHKAN ELEMEN AUDIO DI SINI (tidak terlihat oleh pengguna) --- */}
+            <audio ref={audioRef} src="/audio/notification.mp3" preload="auto"></audio>
             {/* Tombol pindah mode */}
             <div className="flex space-x-2 md:space-x-4 mb-8 p-2 bg-card rounded-lg">
                 <button onClick={() => switchMode('pomodoro')} className={`px-3 md:px-4 py-2 rounded-md transition-colors duration-300 ${mode === 'pomodoro' ? 'bg-accent' : 'hover:bg-background'}`}>Pomodoro</button>

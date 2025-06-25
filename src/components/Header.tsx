@@ -44,6 +44,36 @@ export default function Header() {
                             <Link to="/habit-tracker" className="block px-4 py-3 hover:bg-background hover:text-accent rounded-b-lg transition-all duration-300">Habit Tracker</Link>
                         </div>
                     </li>
+                    <li>
+                        <NavLink
+                            to="/financial"
+                            className={({ isActive }) => 
+                                `pb-1 transition-colors duration-300 ${isActive ? 'text-accent border-b-2 border-accent' : 'hover:text-accent'}`
+                            }
+                        > 
+                            Financial Tools
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/random"
+                            className={({ isActive }) => 
+                                `pb-1 transition-colors duration-300 ${isActive ? 'text-accent border-b-2 border-accent' : 'hover:text-accent'}`
+                            }
+                        > 
+                            Random Tools
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/social-tools"
+                            className={({ isActive }) => 
+                                `pb-1 transition-colors duration-300 ${isActive ? 'text-accent border-b-2 border-accent' : 'hover:text-accent'}`
+                            }
+                        > 
+                            SosMed Tools
+                        </NavLink>
+                    </li>
                 </ul>
 
                 {/* tombol humberger buat hp */}
@@ -74,6 +104,15 @@ export default function Header() {
                                 <li><NavLink to="/habit-tracker" onClick={closeAllMenus} className="block py-2 text-base opacity-80 hover:opacity-100 hover:text-accent">Habit Tracker</NavLink></li>
                             </ul>
                         </div>
+                    </li>
+                    <li className="border-b border-background">
+                        <NavLink to="/financial" onClick={closeAllMenus} className="block py-4 text-lg hover:text-accent">Financial Tools</NavLink>
+                    </li>
+                    <li className="border-b border-background">
+                        <NavLink to="/random" onClick={closeAllMenus} className="block py-4 text-lg hover:text-accent">Random Tools</NavLink>
+                    </li>
+                    <li className="border-b border-background">
+                        <NavLink to="/social-tools" onClick={closeAllMenus} className="block py-4 text-lg hover:text-accent">SosMed Tools</NavLink>
                     </li>
                 </ul>
             </div>

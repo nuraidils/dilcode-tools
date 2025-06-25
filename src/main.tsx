@@ -7,6 +7,7 @@ import MainLayout from './layouts/MainLayout'
 import HomePage from './pages/HomePage'
 import PomodoroPage from './pages/PomodoroPage'
 import StudyPlanPage from './pages/StudyPlanPage'
+import HabitTrackerPage from './pages/HabitTrackerPage'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path: 'study-plan',
         element: <StudyPlanPage />
+      },
+      {
+        path: 'habit-tracker',
+        element: <HabitTrackerPage />
       },
     ],
   },

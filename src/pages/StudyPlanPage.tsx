@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
+import { Download } from "lucide-react";
 
 // tipe data untuk jadwal yang akan digenerate
 type Schedule = {
@@ -17,6 +18,20 @@ export default function StudyPlanPage() {
     const [error, setError] = useState<string>("");
 
     // logic
+
+    // logika untuk memuat jadwal saat komponen pertama kali render
+    useEffect(() => {
+        try {
+            const savedPlan = localStorage.getItem('studyPlan');
+            if (savedPlan) {
+                setSchedule(JSON.parse(savedPlan));
+            }
+        } catch (error) {
+            console.error("Gagal memuat jadwal dari localStorage:", error);
+            // jika data rusah, hapus aja
+            localStorage.removeItem('studyPlan');
+        }
+    }, []) // array dependensi kosong agar hanya berjalan sekali saat mount
 
     // Fungsi untuk menangani perubahan pada checkbox hari
     const handleDayChange = (day: string) => {
@@ -62,8 +77,45 @@ export default function StudyPlanPage() {
             }
         });
 
-        // 3. Update State untuk menampilkan hasil
-        setTimeout(() => setSchedule(newSchedule), 100);
+        // logika untuk simpan jadwal ke localStorage
+        try {
+            localStorage.setItem('studyPlan', JSON.stringify(newSchedule));
+            setSchedule(newSchedule);
+        } catch (error) {
+            console.error("Gagal menyimpan jadwal ke localStorage:", error);
+            setError("Gagal menyimpan jadwal, mungkin penyimpanan browser penuh.");
+        }
+    };
+
+    // --- FUNGSI BARU: untuk menghapus jadwal ---
+    const handleClearSchedule = () => {
+        try {
+            localStorage.removeItem('studyPlan');
+            setSchedule(null);
+            alert("Jadwal tersimpan berhasil dihapus!");
+        } catch (error) {
+            console.error("Gagal menghapus jadwal dari localStorage:", error);
+        }
+    };
+
+    // fungsi untuk eksport ke file .txt
+    const handleExportToText = () => {
+        if (!schedule) return;
+        let scheduleText = "Jadwal Belajarku - Dibuat oleh idil\n\n";
+        for (const [day, subjects] of Object.entries(schedule)) {
+            scheduleText += `--- ${day} ---\n`;
+            subjects.forEach((subject, index) => {
+                scheduleText += `${index + 1}. ${subject}\n`;
+            });
+            scheduleText += "\n";
+        }
+        const blob = new Blob([scheduleText], { type: 'text/plain;charsetutf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'jadwal-belajar.txt';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -126,23 +178,27 @@ export default function StudyPlanPage() {
             {error && <p className="text-error mt-6 text-lg animate-pulse">{error}</p>}
             
             <div className="w-full max-w-4xl mt-12">
-                {!schedule && !error && (
-                    <div className="text-center p-8 bg-card rounded-lg animate-fade-in">
-                        <h2 className="text-2xl text-white font-bold mb-2">Mulai Rencanakan Belajarmu</h2>
-                        <p className="opacity-70">Isi form di atas dan klik "Buat Jadwal" untuk melihat rencana belajarmu muncul di sini!</p>
-                    </div>
-                )}
-
-                {schedule && (
-                    <div className="animate-fadeIn">
-                        <h2 className="text-3xl font-bold mb-6 text-center">Jadwal Belajarmu!</h2>
+                {/* Tampilan Hasil */}
+                {schedule ? (
+                    <div className="animate-fade-in">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl md:text-3xl text-white font-bold text-center">Jadwal Belajarmu!</h2>
+                            <div className="flex space-x-2">
+                                <button onClick={handleExportToText} title="Eksport ke Teks" className="bg-card hover:bg-accent text-white font-semibold p-2 rounded-lg transition-all duration-300">
+                                    <Download size={20} />
+                                </button>
+                                <button onClick={handleClearSchedule} className="bg-error hover:opacity-80 text-white font-semibold py-2 px-3 md:px-4 rounded-lg transition-all duration-300 text-sm">
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {Object.entries(schedule).map(([day, subjectsForDay]) => (
-                                <div key={day} className="bg-card rounded-lg shadow-lg p-6">
+                                <div key={day} className="bg-card rounded-lg shadow-lg p-6 flex flex-col">
                                     <h3 className="text-2xl text-white font-semibold mb-4 border-b-2 border-accent pb-2">{day}</h3>
-                                    <ul className="space-y-3">
+                                    <ul className="space-y-3 flex-grow">
                                         {subjectsForDay.map((subject, index) => (
-                                            <li key={index} className="bg-background p-3 rounded-md flex items-center">
+                                            <li key={index} className="bg-background text-white p-3 rounded-md flex items-center">
                                                 <span className="bg-accent text-white rounded-full h-8 w-8 text-center leading-8 mr-4 font-bold flex-shrink-0">{index + 1}</span>
                                                 <span>{subject}</span>
                                             </li>
@@ -151,6 +207,12 @@ export default function StudyPlanPage() {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                ) : (
+                    // Empty State
+                    <div className="text-center p-8 bg-card rounded-lg animate-fade-in">
+                        <h2 className="text-2xl text-white font-bold mb-2">Mulai Rencanakan Belajarmu</h2>
+                        <p className="opacity-70">Isi form di atas dan klik "Buat Jadwal" untuk melihat rencanamu di sini. Jadwal terakhirmu akan otomatis dimuat jika ada.</p>
                     </div>
                 )}
             </div>

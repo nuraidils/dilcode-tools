@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Timer, NotebookText } from "lucide-react";
+import { Timer, NotebookText, Target } from "lucide-react";
 
 export default function HomePage() {
     return (
@@ -20,18 +20,22 @@ export default function HomePage() {
                     <div className="text-left flex-1">
                         <h3 className="text-2xl font-bold text-accent mb-3">Productivity</h3>
                         <p className="text-text opacity-90 mb-6">
-                            Raih potensial maksimalmu dengan alat bantu fokus dan perencanaan. Atur waktumu dengan presisi menggunakan Pomodoro Timer dan buat jadwal belajar yang sistematis untuk menaklukkan semua target akademismu.
+                            Raih potensial maksimalmu dengan alat bantu fokus, perencanaan, dan pembentukan kebiasaan. Atur waktumu, buat jadwal belajar yang sistematis, dan bangun rutinitas positif dengan Habit Tracker.
                         </p>
                     </div>
                     {/* daftar tools */}
                     <div className="flex flex-col space-y-4 w-full md:w-auto">
-                        <Link to="/pomodoro" className="flex items-center justify-center text-center p-4 bg-background rounded-lg hover:bg-accent hover:text-white transition-all duration-300 group w-full">
+                        <Link to="/pomodoro" className="flex items-center justify-start text-center p-4 bg-background rounded-lg hover:bg-accent hover:text-white transition-all duration-300 group w-full">
                             <Timer className="mr-3 h-6 w-6 text-accent group-hover:text-white" />
                             <span className="font-semibold text-lg text-white">Pomodoro Timer</span>
                         </Link>
-                        <Link to="/study-plan" className="flex items-center justify-center text-center p-4 bg-background rounded-lg hover:bg-accent hover:text-white transition-all duration-300 group w-full">
+                        <Link to="/study-plan" className="flex items-center justify-start text-center p-4 bg-background rounded-lg hover:bg-accent hover:text-white transition-all duration-300 group w-full">
                             <NotebookText className="mr-3 h-6 w-6 text-accent group-hover:text-white" />
                             <span className="font-semibold text-lg text-white">Study Plan Generator</span>
+                        </Link>
+                        <Link to="/habit-tracker" className="flex items-center justify-start text-center p-4 bg-background rounded-lg hover:bg-accent hover:text-white transition-all duration-300 group w-full">
+                            <Target className="mr-3 h-6 w-6 text-accent group-hover:text-white" />
+                            <span className="font-semibold text-lg text-white">Habit Tracker</span>
                         </Link>
                     </div>
                 </div>

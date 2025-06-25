@@ -1,23 +1,35 @@
 import { useState, useEffect, useCallback } from "react";
+import type { FormEvent } from "react";
 import Notification from "../components/Notification";
 
 // tipe ini untuk mode timer
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
-// durasi dalam detik
-const POMODORO_SECONDS = 25 * 60;
-const SHORT_BREAK_SECONDS = 5 * 60;
-const LONG_BREAK_SECONDS = 15 * 60;
-const SESSIONS_FOR_LONG_BREAK = 4;
-
 export default function PomodoroPage() {
+    // state utama
     const [mode, setMode] = useState<Mode>('pomodoro');
-    const [timeLeft, setTimeLeft] = useState(POMODORO_SECONDS);
     const [isActive, setIsActive] = useState(false);
     const [sessionCount, setSessionCount] = useState(0);
+
+    // state untuk menyimpan durasi dalam menit
+    const [times, setTimes] = useState({
+        pomodoro: 25,
+        shortBreak: 5,
+        longBreak: 15,
+    });
+
+    //untuk menyimpan jumlah sesi kustom
+    const [sessionsForLongBreak, setSessionsForLongBreak] = useState(4);
+
+    // state untuk menyimpan waktu saat ini dalam detik
+    const [timeLeft, setTimeLeft] = useState(times.pomodoro * 60);
+
+    // state untuk input form pengaturan
+    const [settingsInput, setSettingsInput] = useState({ ...times, sessions: sessionsForLongBreak });
+
     const [notification, setNotification] = useState({ show: false, message: '' });
 
-    // logika inti
+    // logika dan fungsi bantuan
 
     const showNotification = (message: string) => {
         setNotification({ show: true, message });
@@ -31,25 +43,23 @@ export default function PomodoroPage() {
         setIsActive(false); // selalu jeda timer saat ganti mode
         setMode(newMode);
         if (newMode === 'pomodoro') {
-            setTimeLeft(POMODORO_SECONDS);
+            setTimeLeft(times.pomodoro * 60);
         } else if (newMode === 'shortBreak') {
-            setTimeLeft(SHORT_BREAK_SECONDS);
+            setTimeLeft(times.shortBreak * 60);
         } else if (newMode === 'longBreak') {
-            setTimeLeft(LONG_BREAK_SECONDS);
+            setTimeLeft(times.longBreak * 60);
             setSessionCount(0); // reset hitungan sesi setelah long break
         }
-    }, []);
+    }, [times]); // times menjadi dependensi
 
     // useeffect pertama untuk menjalankan interval timer
     useEffect(() => {
         let interval: number | undefined = undefined;
-
         if (isActive && timeLeft > 0) {
             interval = setInterval(() => {
                 setTimeLeft((prevTime) => prevTime - 1);
             }, 1000);
         }
-
         // selalu bersihkan interval saat useeffevct dieksekusi ulang atau komponen unmount
         return () => {
             if (interval) {
@@ -60,15 +70,14 @@ export default function PomodoroPage() {
 
     // useeffect kedua untuk menangani saat waktu habis
     useEffect(() => {
-        if (timeLeft === 0) {
+        if (timeLeft === 0 && isActive) {
             let nextMode: Mode = 'pomodoro';
             let notificationMessage = '';
-
             // kondisi untuk sesi
             if (mode === 'pomodoro') {
                 const newSessionCount = sessionCount + 1;
                 setSessionCount(newSessionCount);
-                if (newSessionCount % SESSIONS_FOR_LONG_BREAK === 0) {
+                if (newSessionCount % sessionsForLongBreak === 0) {
                     nextMode = 'longBreak';
                     notificationMessage = "Waktunya istirahat panjang!";
                 } else {
@@ -79,24 +88,28 @@ export default function PomodoroPage() {
                 nextMode = 'pomodoro';
                 notificationMessage = "Kembali fokus!";
             }
-
             showNotification(notificationMessage);
             switchMode(nextMode);
             setIsActive(true);
         }
-    }, [timeLeft, mode, switchMode, sessionCount]);
+    }, [timeLeft, mode, switchMode, sessionCount, isActive, sessionsForLongBreak]);
 
-    // fungsi bantuan
+    const toggleTimer = () => { if (timeLeft > 0) setIsActive(!isActive); };
+    const resetTimer = () => switchMode(mode);
 
-    const toggleTimer = () => {
-        // tidak bisa start jika waktu sudah 0
-        if (timeLeft <= 0) return;
-        setIsActive(!isActive);
-    };
-
-    const resetTimer = () => {
-        // Reset waktu sesuai mode yang sedang aktif
-        switchMode(mode);
+    // fungsi untuk menerapkan pengaturan
+    const handleSettingsSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        setTimes({
+            pomodoro: settingsInput.pomodoro,
+            shortBreak: settingsInput.shortBreak,
+            longBreak: settingsInput.longBreak,
+        });
+        setSessionsForLongBreak(settingsInput.sessions);
+        setIsActive(false);
+        // langsung update timer ke durasi pomodoro baru
+        setTimeLeft(settingsInput.pomodoro * 60);
+        showNotification("Pengaturan berhasil disimpan!");
     };
 
     // format waktu dari detik menjadi MM:SS
@@ -104,13 +117,14 @@ export default function PomodoroPage() {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
+    };
 
     // tampilan
 
     return (
-        <div className="flex flex-col items-center justify-center text-center">
+        <div className="flex flex-col items-center justify-center text-center w-full">
             <Notification message={notification.message} show={notification.show} />
+
             {/* Tombol pindah mode */}
             <div className="flex space-x-2 md:space-x-4 mb-8 p-2 bg-card rounded-lg">
                 <button onClick={() => switchMode('pomodoro')} className={`px-3 md:px-4 py-2 rounded-md transition-colors duration-300 ${mode === 'pomodoro' ? 'bg-accent' : 'hover:bg-background'}`}>Pomodoro</button>
@@ -141,6 +155,34 @@ export default function PomodoroPage() {
                     Reset
                 </button>
             </div>
+
+            {/* form pengaturan */}
+            <form onSubmit={handleSettingsSubmit} className="mt-10 w-full max-w-lg bg-card p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-bold mb-4 text-accent">Pengaturan Waktu (Menit)</h3>
+                {/* Kontainer dibuat responsif */}
+                <div className="flex flex-col md:flex-row md:justify-around md:items-center space-y-4 md:space-y-0 md:space-x-2">
+                    {/* pengaturan waktu */}
+                    <div className="flex flex-col items-center">
+                        <label htmlFor="pomodoro" className="mb-1 text-white text-sm">Fokus (Menit)</label>
+                        <input type="number" id="pomodoro" min="1" value={settingsInput.pomodoro} onChange={(e) => setSettingsInput({...settingsInput, pomodoro: Number(e.target.value)})} className="w-full md:w-24 p-2 text-center bg-background rounded-md border-2 border-transparent focus:border-accent focus:ring-0" />
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <label htmlFor="shortBreak" className="mb-1 text-white text-sm">Istirahat Pendek</label>
+                        <input type="number" id="shortBreak" min="1" value={settingsInput.shortBreak} onChange={(e) => setSettingsInput({...settingsInput, shortBreak: Number(e.target.value)})} className="w-full md:w-24 p-2 text-center bg-background rounded-md border-2 border-transparent focus:border-accent focus:ring-0" />
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <label htmlFor="longBreak" className="mb-1 text-white text-sm">Istirahat Panjang</label>
+                        <input type="number" id="longBreak" min="1" value={settingsInput.longBreak} onChange={(e) => setSettingsInput({...settingsInput, longBreak: Number(e.target.value)})} className="w-full md:w-24 p-2 text-center bg-background rounded-md border-2 border-transparent focus:border-accent focus:ring-0" />
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <label htmlFor="sessions" className="mb-1 text-white text-sm">Sesi per Siklus</label>
+                        <input type="number" id="sessions" min="1" value={settingsInput.sessions} onChange={(e) => setSettingsInput({...settingsInput, sessions: Number(e.target.value)})} className="w-full md:w-24 p-2 text-center bg-background rounded-md border-2 border-transparent focus:border-accent focus:ring-0" />
+                    </div>
+                </div>
+                <button type="submit" className="w-full mt-6 bg-accent hover:bg-accent-hover text-white font-semibold py-2 rounded-lg transition-all duration-300">
+                    Terapkan
+                </button>
+            </form>
         </div>
     )
 }

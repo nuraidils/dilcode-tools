@@ -40,7 +40,8 @@ export default function Header() {
                         </button>
                         <div className="absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
                             <Link to="/pomodoro" className="block px-4 py-3 hover:bg-background hover:text-accent rounded-t-lg transition-all duration-300">Pomodoro Timer</Link>
-                            <Link to="/study-plan" className="block px-4 py-3 hover:bg-background hover:text-accent rounded-b-lg transition-all duration-300">Study Plan Generator</Link>
+                            <Link to="/study-plan" className="block px-4 py-3 hover:bg-background hover:text-accent transition-all duration-300">Study Plan Generator</Link>
+                            <Link to="/habit-tracker" className="block px-4 py-3 hover:bg-background hover:text-accent rounded-b-lg transition-all duration-300">Habit Tracker</Link>
                         </div>
                     </li>
                 </ul>
@@ -70,6 +71,7 @@ export default function Header() {
                             <ul className="pl-4 pt-2 pb-2 space-y-2">
                                 <li><NavLink to="/pomodoro" onClick={closeAllMenus} className="block py-2 text-base opacity-80 hover:opacity-100 hover:text-accent">Pomodoro Timer</NavLink></li>
                                 <li><NavLink to="/study-plan" onClick={closeAllMenus} className="block py-2 text-base opacity-80 hover:opacity-100 hover:text-accent">Study Plan Generator</NavLink></li>
+                                <li><NavLink to="/habit-tracker" onClick={closeAllMenus} className="block py-2 text-base opacity-80 hover:opacity-100 hover:text-accent">Habit Tracker</NavLink></li>
                             </ul>
                         </div>
                     </li>
